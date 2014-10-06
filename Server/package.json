@@ -1,0 +1,10 @@
+{
+    "name":"Ciao-Mondo",
+    "description":"app di prova",
+    "version":"0.0.1",
+    "private":"true",
+    "dependencies": {
+		"express":"3.16.5",
+		"mongodb":"*"
+    }
+}
