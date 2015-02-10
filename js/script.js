@@ -27,15 +27,15 @@ function ricerca() {
                 divRigaDati.append("<span class='cella'>" + auto.modello + "</span>");
                 divRiga.append(divRigaDati);
                 var divEditRigaDati = $("<div class='editRigaDati'></div>");
-                divEditRigaDati.append("<input class='editMarca' type='text'>" + auto.marca + "</input>");
-                divEditRigaDati.append("<input class='editModello' type='text'>" + auto.modello + "</input>");
-                divEditRigaDati.append("<button class='editOk'>OK</input>");
-                divEditRigaDati.append("<button class='editOk'>Annulla</input>");
+                divEditRigaDati.append("<input class='editMarca' type='text' value=" + auto.marca + "></input>");
+                divEditRigaDati.append("<input class='editModello' type='text' value=" + auto.modello + "></input>");
+                divEditRigaDati.append("<button class='editOk' onclick='update(\"" + id + "\")'>OK</input>");
+                divEditRigaDati.append("<button class='editOk' onclick='hideEditAuto(\"" + id + "\")'>Annulla</input>");
                 divEditRigaDati.hide();
                 divRiga.append(divEditRigaDati);
                 var divEditControls = $("<div class='editControls'></div>");
-                divEditControls.append("<button onclick='enableUpdate(\"" + id + "\")'>Update</button>");
-                divEditControls.append("<button onclick='deleteAuto(\"" + id + "\")'>Delete</button>");
+                divEditControls.append("<button onclick='showEditAuto(\"" + id + "\")'>Modifica</button>");
+                divEditControls.append("<button onclick='deleteAuto(\"" + id + "\")'>Cancella</button>");
                 divEditControls.hide();
                 divRiga.append(divEditControls);
                 divRiga.mouseover(function() {divEditControls.show();});
@@ -48,22 +48,16 @@ function ricerca() {
     });
 }
 
-function enableUpdate(id) {
-    $.ajax({
-        type: "GET",
-        url: "http://localhost:3113/ricerca/" + id,
-        dataType: "json"
-    }).done(function(auto) {
-        idSelectedAuto = id;
-        $("#"+id).children("div.rigaDati").hide();
-        $("#"+id).children("div.editRigaDati").show();
-        $("#marcaUpdate").val(auto.marca);
-        $("#modelloUpdate").val(auto.modello);
-        $("#updateBtn").show();
-        $("#annullaBtn").show();
-    }).fail(function(jqXHR, textStatus) {
-        myLog(textStatus);
-    });
+function showEditAuto(id) {
+		$("#"+id).children("div.rigaDati").hide();
+		$("#"+id).children("div.editControls").hide();
+    $("#"+id).children("div.editRigaDati").show();
+}
+
+function hideEditAuto(id) {
+    $("#"+id).children("div.editRigaDati").hide();
+		$("#"+id).children("div.rigaDati").show();
+		$("#"+id).children("div.editControls").show();
 }
 
 function deleteAuto(id) {
@@ -78,28 +72,18 @@ function deleteAuto(id) {
     });
 }
 
-function disableUpdate(id) {
-    $("#updateBtn").hide();
-    $("#annullaBtn").hide();
-    $("#marcaUpdate").val("");
-    $("#modelloUpdate").val("");
-    $("#"+id).children("div.rigaDati").show();
-    $("#"+id).children("div.EditRigaDati").hide();
-    idSelectedAuto = "";
-}
-
 function update(id) {
-    var marca = $("#"+id).children("input.editMarca").val();
-    var modello = $("#"+id).children("input.editModello").val();
+    var marca = $("#"+id + " *").filter(".editMarca").val();
+    var modello = $("#"+id + " *").filter(".editModello").val();
     if (marca !== "" && modello !== "") {
         var auto = {marca: marca, modello: modello};
         $.ajax({
             type: "POST",
             dataType: "json",
-            url: "http://localhost:3113/update/" + idSelectedAuto,
+            url: "http://localhost:3113/update/" + id,
             data: auto
         }).done(function(data) {
-            disableUpdate(id);
+            hideEditAuto(id);
             ricerca();
         }).fail(function(jqXHR, textStatus) {
             myLog(textStatus);
